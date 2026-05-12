@@ -1,0 +1,37 @@
+# Build
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.cache
+
+# Logs
+*.log
+
+# Packages
+packages/
+
+# ASP.NET
+wwwroot/lib/
+
+# Publish
+publish/
+
+# Secrets
+appsettings.Development.json
+appsettings.Production.json
+appsettings.json
+secrets.json
+
+# Rider
+.idea/
+
+# Docker
+docker-compose.override.yml
+
+# OS
+Thumbs.db
+.DS_Store

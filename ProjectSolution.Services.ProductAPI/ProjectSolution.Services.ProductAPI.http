@@ -1,0 +1,6 @@
+@ProjectSolution.Services.ProductAPI_HostAddress = http://localhost:5056
+
+GET {{ProjectSolution.Services.ProductAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

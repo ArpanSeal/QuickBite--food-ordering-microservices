@@ -1,0 +1,181 @@
+﻿@model CartDto
+
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<form method="post">
+
+    @* hidden input fields  *@
+	<input asp-for="CartHeaderDto.CartHeaderId" type="hidden" />
+	<input asp-for="CartHeaderDto.UserId" type="hidden" />
+	<input asp-for="CartHeaderDto.CouponCode" type="hidden" />
+	<input asp-for="CartHeaderDto.Discount" type="hidden" />
+	<input asp-for="CartHeaderDto.CartTotal" type="hidden" />
+
+    @*
+        There are:
+
+        ❌ No <input> elements
+        ❌ No name attributes
+        ❌ Nothing posted to server
+
+        So the browser does NOT send CartDetailsListDto.
+
+        🧠 Important Rule
+
+        HTML forms only send:
+        <input>
+        <select>
+        <textarea>
+
+        They do NOT send:
+        <span>
+        <div>
+        Razor loops
+        Model properties
+
+        🏆 Best Practice (Important)
+
+        In checkout scenario:
+
+        You should NOT trust CartDetailsListDto from client.
+
+        Because:
+
+        ⚠️ Users can modify hidden inputs
+        ⚠️ Prices can be tampered
+
+        Recalculate everything from DB.
+
+        Checkout POST should:
+        Receive CartHeader info (Name, Email, Phone)
+        Ignore CartDetailsListDto from client
+        Fetch cart items from DB
+        Recalculate total securely
+    *@
+
+    <div class="container my-5">
+
+        <div class="row g-4">
+
+            <!-- LEFT: CUSTOMER INFO -->
+            <div class="col-md-7">
+
+                <div class="card shadow-sm border-0 p-4">
+
+                    <h4 class="fw-bold mb-4">
+                        <i class="bi bi-receipt"></i>
+                        Order Summary
+                    </h4>
+
+                    <div class="row g-3">
+
+                        <div class="col-12">
+                            <input placeholder="Full name" asp-for="CartHeaderDto.Name"
+                                   class="form-control form-control-lg" />
+							<span asp-validation-for="CartHeaderDto.Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <input placeholder="Email" asp-for="CartHeaderDto.Email"
+                                   class="form-control form-control-lg" />
+							<span asp-validation-for="CartHeaderDto.Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <input placeholder="Phone number" asp-for="CartHeaderDto.PhoneNumber"
+                                   class="form-control form-control-lg" />
+							<span asp-validation-for="CartHeaderDto.PhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="alert alert-danger small">
+                                Order will be ready in ~30 minutes after placing order. If you place order when restaurant is closed it will be ready next day.
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- RIGHT: ORDER DETAILS -->
+            <div class="col-md-5">
+
+                <div class="card shadow-lg border-0">
+
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-cart-check-fill"></i>
+                            Your Order
+                        </h5>
+                    </div>
+
+                    <div class="card-body fw-semibold">
+                        @if (Model.CartDetailsListDto != null){
+                            @foreach(var cartDetails in Model.CartDetailsListDto) {
+                                <!-- Example Item Row -->
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>@cartDetails.ProductDto?.ProductName</span>
+                                    <span>@cartDetails.ProductDto?.Price.ToString("C2") X @cartDetails.Count</span>
+                                </div>
+                            }
+                        }
+
+                        <hr />
+
+                        <!-- TOTALS -->
+                        <div class="bg-light p-3 rounded">
+
+                            <div class="d-flex justify-content-between">
+                                <span>Subtotal</span>
+                                <span>
+                                    @(((Model.CartHeaderDto?.CartTotal ?? 0) + 
+                                    (Model.CartHeaderDto?.Discount ?? 0)).ToString("C2"))
+                                </span>
+                            </div>
+
+                            @if (Model.CartHeaderDto?.Discount>0){
+                                <div class="d-flex justify-content-between" style="color: green">
+                                    <span>Discount</span>
+                                    <span>-@Model.CartHeaderDto?.Discount.ToString("C2")</span>
+                                </div>
+                            }
+                            <hr />
+
+                            <div class="d-flex justify-content-between fw-bold fs-5">
+                                <span>Total</span>
+                                <span style="color: green">@Model.CartHeaderDto?.CartTotal.ToString("C2")</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card-footer bg-light border-top">
+
+                        <button type="submit"
+                                class="btn btn-success w-100 btn mb-2 fw-bold">
+                            <i class="bi bi-check-circle"></i>
+                            Place Order
+                        </button>
+
+                        <a asp-action="CartIndex"
+                           class="btn btn-outline-warning w-100 fw-bold">
+                            Back to Cart
+                        </a>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

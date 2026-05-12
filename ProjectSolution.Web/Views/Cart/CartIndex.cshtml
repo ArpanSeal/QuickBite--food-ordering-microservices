@@ -1,0 +1,158 @@
+﻿@model CartDto
+
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+@if(Model.CartHeaderDto!=null && Model.CartDetailsListDto?.Count()>0)
+{
+<form method="get" asp-action="Checkout">
+    <div class="container my-5">
+
+        <div class="card shadow-lg border-2">
+
+            <input asp-for="CartHeaderDto.CartHeaderId" type="hidden" />
+            <input asp-for="CartHeaderDto.UserId" type="hidden" />
+
+            <!-- HEADER -->
+                <div class="card-header bg-light text-dark border-bottom d-flex justify-content-between align-items-center p-3 rounded-top">
+                <h4 class="mb-0 fw-bold text-dark">
+                    <i class="bi bi-cart-check-fill"></i>
+                    Shopping Cart
+                </h4>
+
+                <a class="btn btn-outline-primary btn-sm fw-bold" asp-action="Index" asp-controller="Home">
+                    <i class="bi bi-arrow-left"></i> Continue Shopping
+                </a>
+            </div>
+
+            <!-- BODY -->
+            <div class="card-body p-3">
+                @foreach (var item in Model.CartDetailsListDto)
+                {
+                    <div class="row align-items-center mb-4 p-3 border rounded shadow-sm m-3">
+
+                        <div class="col-md-2 text-center">
+                            <img src="@item.ProductDto?.ImageUrl"
+                                    class="img-fluid rounded shadow-sm"
+                                    style="max-height:90px; object-fit:cover;" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <h6 class="fw-bold mb-1">@item.ProductDto?.ProductName</h6>
+                            <small class="text-muted">
+                                @Html.Raw(item.ProductDto?.Description)
+                            </small>
+                        </div>
+
+                        <div class="col-md-2 fw-semibold" style="color:green">
+                            @item.ProductDto?.Price.ToString("C2")
+                        </div>
+
+                        <div class="col-md-2">
+                            <input type="number"
+                                    class="form-control text-center"
+                                    value="@item.Count" min="1" disabled/>
+                        </div>
+
+                        <div class="col-md-2 text-center py-2">
+                            <a class="btn btn-danger btn-sm" asp-action="RemoveFromCart" asp-route-cartDetailsId="@item.CartDetailsId">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+
+                    </div>
+                }
+                <!-- COUPON + TOTALS -->
+                <div class="row mt-4">
+
+                    <div class="col-md-6">
+                        <label class="fw-semibold">Coupon Code</label>
+                        <div class="input-group">
+                            @if (string.IsNullOrEmpty(Model.CartHeaderDto?.CouponCode))
+                            {
+                                <input class="form-control" placeholder="Enter coupon" asp-for="CartHeaderDto.CouponCode" />
+                                <button class="btn btn-success fw-bold" asp-action="ApplyCoupon">Apply</button>
+                                @* To submit a form a button must be with type="submit", it is also the default behavior if no type is specified. If button is type="button", it performs no action. *@
+                            }
+                            else
+                            {
+                                <input class="form-control" asp-for="CartHeaderDto.CouponCode" disabled/>
+                                <button class="btn btn-danger fw-bold" asp-action="RemoveCoupon">Remove</button>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 text-end">
+                        <div class="bg-light p-3 rounded shadow-sm">
+
+                            @{
+                                var total = Model.CartHeaderDto?.CartTotal ?? 0;
+                                var discount = Model.CartHeaderDto?.Discount ?? 0;
+                                var subtotal = Math.Max(0, total + discount);
+                                var minimumOrderAmount = 50m;
+                                var isEligibleForCheckout = total >= minimumOrderAmount;
+                            }
+
+                            <!-- SUBTOTAL -->
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-semibold">Subtotal</span>
+                                <span>@subtotal.ToString("C2")</span>
+                            </div>
+
+                            <!-- DISCOUNT -->
+                            @if (discount > 0)
+                            {
+                                <div class="d-flex justify-content-between text-danger">
+                                    <span>Discount</span>
+                                    <span>- @discount.ToString("C2")</span>
+                                </div>
+                            }
+
+                            <hr />
+
+                            <!-- TOTAL -->
+                            <div class="d-flex justify-content-between fs-5 fw-bold">
+                                <span>Total</span>
+                                <span style="color: green">@total.ToString("C2")</span>
+                            </div>
+                                @if (!isEligibleForCheckout)
+                                {
+                                    <div class="alert alert-warning text-center fw-bold mt-3">
+                                        Minimum order amount is ₹50. Please add more items to continue.
+                                    </div>
+                                }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FOOTER -->
+            <div class="card-footer bg-white border-top g-2 p-3">
+                <div class="row">
+                    <div class="col-md-4 py-1">
+                        <button class="btn btn-info w-100 fw-bold" asp-action="Index" asp-controller="Home">
+                            <i class="bi bi-arrow-left"></i> Back to Home Page
+                        </button>
+                    </div>
+
+                    <div class="col-md-4 offset-md-4 py-1">
+                        <button type="submit"
+                                class="btn btn-success w-100 fw-bold"
+                                @(isEligibleForCheckout ? "" : "disabled")>
+                            <i class="bi bi-credit-card"></i> Looks Good?
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>
+}
+else
+{
+    <div>
+        <h4>Please add items to the cart.</h4>
+    </div>
+}

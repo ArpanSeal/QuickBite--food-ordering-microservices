@@ -1,0 +1,168 @@
+﻿@using ProjectSolution.Web.Utility
+@model OrderHeaderDto
+
+<form method="post">
+	<input asp-for="OrderHeaderId" type="hidden" />
+	<div class="container my-5">
+
+		<div class="card shadow-lg border-0">
+			<!-- HEADER -->
+			<div class="card-header bg-light-subtle text-dark d-flex justify-content-between align-items-center">
+				<h4 class="mb-0">
+					<i class="bi bi-receipt"></i> Order Summary
+				</h4>
+
+				<a asp-action="OrderIndex" class="btn btn-warning btn-sm fw-bold">
+					<i class="bi bi-arrow-left"></i> Back to Orders
+				</a>
+			</div>
+
+			<div class="card-body">
+				<div class="row g-4">
+					<!-- LEFT : CUSTOMER DETAILS -->
+					<div class="col-lg-6">
+
+						<h5 class="fw-bold mb-3 text-secondary">Customer Information</h5>
+
+						<div class="row mb-3">
+							<label class="col-sm-3 col-form-label fw-semibold">Name</label>
+							<div class="col-sm-8">
+								<input asp-for="Name" readonly class="form-control" />
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<label class="col-sm-3 col-form-label fw-semibold">Phone</label>
+							<div class="col-sm-8">
+								<input asp-for="PhoneNumber" readonly class="form-control" />
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<label class="col-sm-3 col-form-label fw-semibold">Email</label>
+							<div class="col-sm-8">
+								<input asp-for="Email" readonly class="form-control" />
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<label class="col-sm-3 col-form-label fw-semibold">Order Date</label>
+							<div class="col-sm-8">
+								<input value="@Model.OrderTime.ToShortDateString()" readonly class="form-control" />
+							</div>
+						</div>
+
+						@if (User.IsInRole(SD.RoleAdmin))
+						{
+							<div class="row mb-3">
+								<label class="col-sm-3 col-form-label fw-semibold">Stripe Session</label>
+								<div class="col-sm-8">
+									<input asp-for="StripeSessionId" readonly class="form-control" />
+								</div>
+							</div>
+
+							<div class="row mb-3">
+								<label class="col-sm-3 col-form-label fw-semibold">Payment Intent</label>
+								<div class="col-sm-8">
+									<input asp-for="PaymentIntentId" readonly class="form-control" />
+								</div>
+							</div>
+						}
+
+						<div class="row mb-3">
+							<label class="col-sm-3 col-form-label fw-semibold">Order Status</label>
+							<div class="col-sm-8 d-flex align-items-center">
+								<span class="badge bg-info fs-6">@Model.Status</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- RIGHT : ORDER ITEMS -->
+					<div class="col-lg-6">
+						<h5 class="fw-bold text-secondary mb-3">
+							<i class="bi bi-cart-check"></i> Items
+						</h5>
+
+						<ul class="list-group shadow-sm">
+							@foreach (var orderDetail in Model.OrderDetailsDtoList)
+							{
+								<li class="list-group-item">
+									<div class="d-flex justify-content-between align-items-center">
+										<div>
+											<h6 class="mb-1 fw-semibold">@orderDetail.ProductName</h6>
+
+											<small class="text-muted">Price : @orderDetail.ProductPrice.ToString("C2")</small><br />
+											<small class="text-muted">Quantity : @orderDetail.Count</small>
+										</div>
+
+										<div class="fw-bold text-success">
+											@((orderDetail.Count * orderDetail.ProductPrice).ToString("C2"))
+										</div>
+									</div>
+								</li>
+							}
+							<!-- TOTAL SECTION -->
+							<li class="list-group-item bg-light">
+
+								<div class="d-flex justify-content-between">
+									<span>Subtotal</span>
+									<span>@((Model.OrderTotal + Model.Discount).ToString("C2"))</span>
+								</div>
+
+								<div class="d-flex justify-content-between text-danger">
+									<span>Discount</span>
+									<span>-@Model.Discount.ToString("C2")</span>
+								</div>
+
+								<hr />
+
+								<div class="d-flex justify-content-between fw-bold fs-5">
+									<span>Total</span>
+									<span style="color: green">@Model.OrderTotal.ToString("C2")</span>
+								</div>
+
+								<br />
+							</li>
+						</ul>
+
+
+						<!-- ACTION BUTTONS -->
+						<div class="mt-4 d-grid gap-2">
+							@if (User.IsInRole(SD.RoleAdmin))
+							{
+								@if (Model.Status == SD.StatusApproved)
+								{
+									<button asp-action="OrderReadyForPickup" asp-route-orderId="@Model.OrderHeaderId" type="submit"
+									class="btn btn-success fw-bold">
+										<i class="bi bi-check-circle"></i>
+										Ready for Pickup
+									</button>
+								}
+
+								@if (Model.Status == SD.StatusReadyForPickup)
+								{
+									<button asp-action="OrderCompleted" asp-route-orderId="@Model.OrderHeaderId" type="submit"
+									class="btn btn-success fw-bold">
+										<i class="bi bi-check-circle"></i>
+										Complete Order
+									</button>
+								}
+							}
+							@if (User.IsInRole(SD.RoleAdmin) || User.IsInRole(SD.RoleCustomer))
+							{
+								@if (Model.Status == SD.StatusApproved || Model.Status == SD.StatusReadyForPickup)
+								{
+									<button asp-action="OrderCanceled" asp-route-orderId="@Model.OrderHeaderId" type="submit"
+									class="btn btn-outline-danger fw-bold">
+										<i class="bi bi-x-circle"></i>
+										Cancel Order
+									</button>
+								}
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>

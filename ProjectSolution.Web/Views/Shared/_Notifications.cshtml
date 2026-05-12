@@ -1,0 +1,137 @@
+﻿<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer">
+</script>
+<script>
+	toastr.options = {
+	  "closeButton": false,
+	  "debug": false,
+	  "newestOnTop": false,
+	  "progressBar": false,
+	  "positionClass": "toast-bottom-center",
+	  "preventDuplicates": false,
+	  "onclick": null,
+	  "showDuration": "300",
+	  "hideDuration": "1000",
+	  "timeOut": "5000",
+	  "extendedTimeOut": "1000",
+	  "showEasing": "swing",
+	  "hideEasing": "linear",
+	  "showMethod": "fadeIn",
+	  "hideMethod": "fadeOut"
+	}
+</script>
+
+@if(TempData["ErrorMessage"]!=null)
+{
+	<script type="text/javascript">
+		toastr.error('@TempData["ErrorMessage"]');
+	</script>
+}
+
+@if(TempData["SuccessMessage"]!=null)
+{
+	<script type="text/javascript">
+		toastr.success(@Json.Serialize(TempData["SuccessMessage"]));
+	</script>
+}
+
+
+@* 2️⃣ Why single quotes are necessary
+
+In JavaScript:
+
+toastr.success(Coupon saved successfully); // ❌ INVALID JS
+
+
+JavaScript must know this is a string, so it must be wrapped in quotes:
+
+toastr.success("Coupon saved successfully"); // ✅
+toastr.success('Coupon saved successfully'); // ✅
+
+
+So the quotes are for JavaScript, not for Razor.
+
+3️⃣ Why SINGLE quotes are commonly used
+
+Because Razor expressions often include double quotes:
+
+@TempData["SuccessMessage"]
+
+
+If you wrote:
+
+toastr.success("@TempData["SuccessMessage"]"); // ❌ breaks
+
+
+This causes a syntax error because:
+
+JS string uses "
+
+Razor indexer uses "
+
+So we use single quotes outside to avoid escaping:
+
+toastr.success('@TempData["SuccessMessage"]'); // ✅ clean & readable
+
+4️⃣ What happens if you remove the quotes?
+toastr.success(@TempData["SuccessMessage"]); // ❌
+
+
+After Razor rendering:
+
+toastr.success(Coupon saved successfully);
+
+
+JavaScript thinks:
+
+Coupon is a variable
+
+saved is another token
+
+➡️ JavaScript runtime error
+
+5️⃣ Important: Razor HTML-encodes output
+
+Razor automatically encodes strings:
+
+TempData["SuccessMessage"] = "Saved <b>successfully</b>";
+
+
+Output becomes:
+
+toastr.success('Saved &lt;b&gt;successfully&lt;/b&gt;');
+
+
+This is intentional and safe (prevents XSS).
+
+6️⃣ If message contains apostrophes (edge case)
+TempData["SuccessMessage"] = "Coupon user's data saved";
+
+
+Rendered JS:
+
+toastr.success('Coupon user's data saved'); // ❌ JS error
+
+✅ Safe solution (recommended)
+
+Use JSON encoding:
+
+toastr.success(@Json.Serialize(TempData["SuccessMessage"]));
+
+
+This outputs:
+
+toastr.success("Coupon user's data saved");
+
+
+✔ Safe
+✔ Correct escaping
+✔ Production-ready
+
+7️⃣ Interview-ready explanation
+
+The single quotes are required because the Razor expression outputs a string value into JavaScript, and JavaScript string literals must be quoted. Single quotes are used to avoid conflicts with the double quotes used inside Razor expressions.
+
+🧠 One-line summary
+
+We use single quotes so the Razor-generated value becomes a valid JavaScript string literal. *@

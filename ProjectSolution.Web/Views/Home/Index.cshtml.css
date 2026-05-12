@@ -1,0 +1,9 @@
+﻿.product-img {
+    height: 220px;
+    object-fit: cover;
+}
+
+.product-description {
+    height: 60px;
+    overflow: hidden;
+}

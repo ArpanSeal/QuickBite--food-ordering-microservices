@@ -1,0 +1,58 @@
+﻿@model IEnumerable<CouponDto>
+<div class="card shadow-lg border mt-4">
+	<div class="card-header bg-secondary bg-gradient ml-0 py-3">
+		<div class="row">
+			<div class="col-12 text-center">
+				<h1 class="text-dark">Coupons List</h1>
+			</div>
+		</div>
+	</div>
+	<div class="card-body p-4">
+		<div class="row pb-3">
+			<div class="col-6">
+			</div>
+			<div class="col-6 text-end">
+				<a class="btn btn-outline-primary" asp-action="CreateCoupon"><i class="bi bi-plus-square"></i> Create New Coupon</a>
+			</div>
+		</div>
+		<table class="table">
+			<thead>
+				<tr>
+					<th style="width: 10rem;">
+						Coupon Code
+					</th>
+					<th style="width: 10rem;">
+						Discount Amount
+					</th>
+					<th style="width: 10rem;">
+						Minimum Amount
+					</th>
+					<th style="width: 0rem;"></th>
+				</tr>
+			</thead>
+			<tbody>
+				@if(Model is not null){
+					@foreach (CouponDto item in Model)
+					{
+						<tr>
+							<td>
+								@item.CouponCode
+							</td>
+							<td>
+								@((item.DiscountAmount).ToString("c"))
+							</td>
+							<td>
+								@((item.MinAmount).ToString("c"))
+							</td>
+							<td>
+								<a class="btn btn-danger" asp-action="DeleteCoupon" asp-route-couponId="@item.CouponId">
+									<i class="bi bi-trash"></i>
+								</a>
+							</td>
+						</tr>
+					}
+				}
+			</tbody>
+		</table>
+	</div>
+</div>

@@ -1,0 +1,195 @@
+﻿@model ProductDto
+<form asp-action="DeleteProduct" method="post">
+	@* Important to mention the action method (and controller name if needed) name in the controller and we can also mention the method type like POST or GET if needed, by default it is POST for form submissions
+    *@
+    <br />
+    <div class="container border p-3">
+        <h1 class="text-dark text-center">Delete Product</h1>
+        <input asp-for="ProductId" hidden />
+        <hr />
+        <div class="row">
+            <div class="col-2">
+                <label class="control-label pt-2" style="font-size:20px;">Name</label>
+            </div>
+            <div class="col-10 pb-3">
+                <input class="form-control" asp-for="ProductName" disabled/>
+            </div>
+            <div class="col-2">
+                <label class="control-label pt-2" style="font-size:20px;">Category Name</label>
+            </div>
+            <div class="col-10 pb-3">
+                <input class="form-control" asp-for="CategoryName" disabled/>
+            </div>
+            <div class="col-2">
+                <label class="control-label pt-2" style="font-size:20px;">Description</label>
+            </div>
+            <div class="col-10 pb-3">
+                <textarea class="form-control" rows="5" asp-for="Description" disabled></textarea>
+            </div>
+            <div class="col-2">
+                <label class="control-label pt-2" style="font-size:20px;">ImageUrl</label>
+            </div>
+            <div class="col-10 pb-3">
+                <input class="form-control" asp-for="ImageUrl" disabled/>
+            </div>
+            <div class="col-2">
+                <label class="control-label pt-2" style="font-size:20px;">Price</label>
+            </div>
+            <div class="col-10 pb-3">
+                <input class="form-control" asp-for="Price" disabled />
+            </div>
+            <div class="col-5 offset-2">
+                <a class="btn-primary btn form-control" asp-action="ProductIndex">Cancel</a>
+            </div>
+            <div class="col-5">
+                <input type="submit" value="Delete" class="btn btn-danger form-control" />
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="alert alert-danger my-3">
+                <strong>Error:</strong> @ViewBag.ErrorMessage
+            </div>
+        }
+    </div>
+</form>
+
+
+@* In ASP.NET Core MVC, both front-end and back-end validations are essential for data integrity and user experience [2]. The front-end validation provides immediate feedback to the user, while the back-end validation ensures the data is correct before it's persisted to the database.
+Front-End Validation
+Front-end validation in ASP.NET Core MVC is typically handled using JavaScript libraries, most commonly jQuery Validation and jQuery Unobtrusive Validation [2].
+How it Works: ASP.NET Core MVC leverages data annotations in your model to generate HTML5 data-val-* attributes for your input fields. Ex - 
+<input 
+  data-val="true"
+  data-val-required="Product name is required"
+  data-val-length="The field Name must be a string with a maximum length of 50."
+  data-val-length-max="50"
+  name="Name"
+/>
+The unobtrusive validation scripts read these attributes and enforce the rules on the client side without needing to post the form to the server [2].
+Key Components:
+Data Annotations: You decorate your model properties with attributes like [Required], [StringLength], [Range], and [RegularExpression] [2].
+View Helpers: Razor Tag Helpers (e.g., asp-validation-for, asp-validation-summary) are used in the view to display validation messages [2].
+Client-side Libraries: Ensure your layout page includes references to the necessary jQuery and validation scripts (often found in the _ValidationScriptsPartial.cshtml partial view) [2].  *@
+
+
+@* Back-End Validation
+Back-end (server-side) validation is a critical security measure because client-side validation can be bypassed [2]. The back-end validation process occurs in the controller action.
+How it Works: When the form data is submitted to the server, the MVC framework binds the incoming data to your model. During this binding process, it checks the data annotations on the model and populates the ModelState dictionary with any errors [2].
+Key Components:
+Data Annotations: The same data annotations used for front-end validation are automatically re-checked on the server [2].
+ModelState.IsValid: In your controller action, you check the ModelState.IsValid property. If it's false, it means there are validation errors, and you should typically return the view to display the errors to the user [2].
+Custom Validation Logic: You can add custom server-side validation logic within your controller or by creating custom validation attributes [2].
+Summary of the Process
+Define Rules: Use data annotations on your model properties.
+Client-Side Check: The user fills out the form. Unobtrusive JavaScript validates the input in real-time, providing immediate feedback.
+Server-Side Check: The user submits the form. The data is sent to the controller. The framework automatically re-validates the model.
+Action: If valid, the data is processed (e.g., saved to the database). If invalid, the controller returns the view, displaying the errors using the ModelState data [2].  *@
+
+@* Remember to include validation scripts in your view for client-side validation to work:
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+@section is used to inject view-specific content into predefined placeholders in the layout. When a layout uses @RenderSection, views must define that section using @section. Partial views don’t require sections unless their content needs to be placed in a specific section of the layout.
+
+Most layouts look like this:
+
+<body>
+    @RenderBody()
+    @RenderSection("Scripts", required: false)
+</body>
+
+
+If you place the partial directly in the view:
+
+<form>...</form>
+<partial name="_ValidationScriptsPartial" />
+
+Then the generated HTML becomes:
+
+<form>...</form>
+<script src="jquery.js"></script>
+<script src="jquery.validate.js"></script>
+
+❌ Scripts appear in the middle of the page, not at the bottom
+❌ Breaks performance best practices
+❌ Can cause JS execution before DOM is ready
+
+2️⃣ _ValidationScriptsPartial is meant for the Scripts section
+
+That partial contains:
+
+<script src="~/lib/jquery/jquery.min.js"></script>
+<script src="~/lib/jquery-validation/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+These scripts must be:
+
+Loaded after HTML
+Loaded once
+Loaded at the bottom of the page
+
+That’s exactly what @section Scripts is for.
+
+✅ Correct & recommended usage
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+This ensures the layout decides where scripts go.
+
+Why client-side validation still needs @section Scripts
+
+Now here’s the critical difference 👇
+
+Validation scripts must:
+Run after the form inputs exist
+Run once
+In the correct order
+Apply to all forms in the view
+
+The MVC template enforces this by:
+
+Putting validation scripts inside _ValidationScriptsPartial
+
+Rendering them via:
+@RenderSection("Scripts", required: false)
+
+This ensures:
+
+Scripts load after RenderBody
+No duplication
+Predictable execution order
+*@
+
+@* To achieve client-side validation in the browser before the form data is sent to the server, you need to incorporate the necessary JavaScript libraries and adapters. The standard approach in ASP.NET Core MVC involves using:
+jQuery
+jQuery Validation
+jQuery Unobtrusive Validation
+These libraries read the HTML5 data-* attributes that the ASP.NET Core Tag Helpers or HTML Helpers automatically render based on your model annotations, allowing the client's browser to perform the initial validation without a round trip to the server [1, 2].
+You typically enable this by ensuring your views (or a shared layout) reference the correct script files and that unobtrusive validation is enabled in your application's configuration [1, 2]. *@
+
+@* Custom validation (ChatGpt C# 2)
+✔ Runs on server
+❌ Not client-side unless JS adapter is written
+*@
+
+@* Controller-level validation (business rules) - 
+if (model.Price < model.CostPrice)
+{
+    ModelState.AddModelError("Price", "Price cannot be lower than cost price");
+} *@
+
+@* Validation in APIs ([ApiController] magic)
+[ApiController]
+public class ProductsController : ControllerBase
+{
+    [HttpPost]
+    public IActionResult Create(ProductViewModel model)
+    {
+        // ModelState auto-validated
+        return Ok();
+    }
+}
+
+No need to use ModelState.IsValid check because of [ApiController] attribute
+Invalid model → 400 automatically *@

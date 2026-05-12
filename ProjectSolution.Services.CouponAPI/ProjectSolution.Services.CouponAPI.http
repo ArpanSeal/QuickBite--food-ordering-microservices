@@ -1,0 +1,6 @@
+@ProjectSolution.Services.CouponAPI_HostAddress = http://localhost:5226
+
+GET {{ProjectSolution.Services.CouponAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
