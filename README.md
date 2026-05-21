@@ -82,16 +82,20 @@ This project follows a distributed microservices architecture with independent d
 ## Screenshots
 
 ### Home Page
-
+<img width="1882" height="902" alt="image" src="https://github.com/user-attachments/assets/6816a2cd-649e-46e0-8cbc-8cf9fa4a1238" />
 
 ### Login
-
+<img width="1897" height="880" alt="image" src="https://github.com/user-attachments/assets/8db75a21-4345-46e0-b256-bff3f720dffd" />
 
 ### Cart
-
+<img width="1886" height="907" alt="image" src="https://github.com/user-attachments/assets/d7b99007-2591-4365-a1b2-51a1615a170b" />
+<img width="1902" height="702" alt="image" src="https://github.com/user-attachments/assets/178530b5-83e2-4318-b8ce-42edc62d3154" />
 
 ### Payment
+<img width="998" height="842" alt="image" src="https://github.com/user-attachments/assets/411c30fc-0358-48c8-b7d8-de366c966bfe" />
 
+### Manage Order
+<img width="1888" height="848" alt="image" src="https://github.com/user-attachments/assets/fbb800f1-088b-4c19-8576-f696f4fb256f" />
 
 ---
 
